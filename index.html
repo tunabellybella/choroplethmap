@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Missing children, in Chinese cities</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.4.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.4.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      h2,
+      h3 {
+        margin: 10px;
+        font-size: 1.2em;
+      }
+      h3 {
+        font-size: 1em;
+      }
+      p {
+        font-size: 0.85em;
+        margin: 10px;
+        text-align: left;
+      }
+      .map-overlay {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.8);
+        margin-right: 20px;
+        font-family: Arial, sans-serif;
+        overflow: auto;
+        border-radius: 3px;
+        height: 20px;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #features {
+        top: 0;
+        height: 100px;
+        margin-top: 20px;
+        width: 250px;
+      }
+      #legend {
+        padding: 10px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        line-height: 18px;
+        height: 140px;
+        margin-bottom: 40px;
+        width: 100px;
+      }
+      .legend-key {
+        display: inline-block;
+        border-radius: 20%;
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="map-overlay" id="features">
+      <h2>No. of missing children</h2>
+      <div id="pd"><p>Hover to see no. of missing children in each city.</p></div>
+    </div>
+    <div class="map-overlay" id="legend"><em>No of missing children:</em></div>
+
+    <script>
+      // define access token
+      mapboxgl.accessToken = 'pk.eyJ1IjoicGF0Y2hlZXo5NCIsImEiOiJja2R5OXczaDQwd21hMnlud2l6aWV5MDI1In0.lvZ3BGwVfrPAc7QMeWTUSg';
+
+      //create map
+      var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/patcheez94/cks5opg6p0d1t17p4dr6k55ey' // map style URL from Mapbox Studio
+      });
+
+      // wait for map to load before adjusting it
+      map.on('load', function () {
+        // make a pointer cursor
+        map.getCanvas().style.cursor = 'default';
+
+        // set map bounds to China
+        map.fitBounds([
+          [80.087246, 30.179226], //[80.087246, 30.179226, 121.855298, 53.432533] 39.1504634051757, 128.0823785036615 24.336923166884553, 67.48560797152666
+          [128.0823785036615, 39.1504634051757]  //52.90436570771748, 133.15191224752635
+
+        ]);
+
+        // make a pointer cursor
+        map.getCanvas().style.cursor = 'default';
+
+        // define layer names
+        var layers = [
+          '0-138',
+          '138-364',
+          '364-734',
+          '734-1356',
+          '1356-1948'
+        ];
+        var colors = [
+          '#ffffb2',
+          '#fecc5c',
+          '#fd8d3c',
+          '#f03b20',
+          '#bd0026'
+        ];
+
+        // create legend
+        for (i = 0; i < layers.length; i++) {
+          var layer = layers[i];
+          var color = colors[i];
+          var item = document.createElement('div');
+          var key = document.createElement('span');
+          key.className = 'legend-key';
+          key.style.backgroundColor = color;
+
+          var value = document.createElement('span');
+          value.innerHTML = layer;
+          item.appendChild(key);
+          item.appendChild(value);
+          legend.appendChild(item);
+        }
+
+        // change info window on hover
+        map.on('mousemove', function (e) {
+          var states = map.queryRenderedFeatures(e.point, {
+            layers: ['choropleth-fill']
+          });
+
+          if (states.length > 0) {
+            document.getElementById('pd').innerHTML =
+              '<h3><strong>' +
+              states[0].properties.NAME_2 +
+              '</strong></h3><p><strong><em>' +
+              states[0].properties.d_Counts +
+              '</strong> children went missing in this city.</em></p>';
+          } else {
+            document.getElementById('pd').innerHTML =
+              '<p>Hover to see # of missing children.</p>';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
